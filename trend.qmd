@@ -1,0 +1,30 @@
+---
+title: "Open graph in Fullscreen"
+format:
+  html:
+    link-external-icon: true
+    link-external-newwindow: true
+editor: visual
+---
+
+Let's do a chart. But not too big as we don't want to cluter the report.
+
+```{r, warning=FALSE, echo=FALSE}
+
+source("R/main_generic.R")
+source("R/highcharter_charts.R")
+
+```
+
+```{r, warning=FALSE, echo=FALSE}
+
+p_daily <- plot_daily(plot_bollinger = TRUE, 
+                       plot_safeline = TRUE,
+                       plot_ma_ct = TRUE)
+
+p_daily
+```
+
+<p><a href="file:///Users/benj/Desktop/Montreux_backtest/output/charts/lvmh_daily.html" target="_blank" data-menubar="no" data-scrollbars="yes" data-resizable="yes" data-top="500" data-left="500" width="1200" height="600" data-toolbar="no"><code>zoom_daily</code></a></p>
+
+<p><a href="file:///Users/benj/Desktop/Montreux_backtest/output/charts/lvmh_trend.html" target="_blank" data-menubar="no" data-scrollbars="yes" data-resizable="yes" data-top="500" data-left="500" width="1200" height="600" data-toolbar="no"><code>zoom_trend</code></a></p>
