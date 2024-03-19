@@ -268,7 +268,7 @@ get_start_end_periods <- function(data,
                                   horizon,
                                   ndays) {
 
-    dt <- copy(daily)
+    dt <- copy(data)
 
     dt <- dt[, .(start_date = frollapply(date,
                                          n = ndays,
@@ -309,7 +309,7 @@ get_start_end_periods <- function(data,
 
     dt <- dt[!is.na(start_horizon)]
 
-    dt <- dt[, actif := input]
+    dt <- dt[, actif := asset]
 
     return(dt)
 
@@ -321,7 +321,7 @@ max_perf_horizon <- function(start_horizon_val,
 
     max_perf_n_days <- res_horizon_n_days[end_date %between% c(ymd(start_horizon_val), ymd(end_horizon_val)), max(perf_n_days)]
 
-    res <- data.table(actif = input,
+    res <- data.table(actif = asset,
                       start_horizon = ymd(start_horizon_val),
                       end_horizon = ymd(end_horizon_val),
                       max_perf = max_perf_n_days)
@@ -1188,7 +1188,7 @@ trend_recent_monthly <- function(date_analyse,
 
     dt <- copy(monthly)
 
-    # Filter on the previous 6 months before date_analyse input
+    # Filter on the previous 6 months before date_analyse asset
     dt <- dt[date < date_analyse]
     dt <- tail(dt, 6)
 
@@ -1209,7 +1209,8 @@ trend_recent_monthly <- function(date_analyse,
 
     score <- ifelse(between(nb_months, 1, 5), max(0, 6 - nb_months) * 1000 + vitesse, 0)
 
-    res <- data.table(date_analyse = date_analyse,
+    res <- data.table(asset = asset,
+                      date_analyse = date_analyse,
                       vitesse = vitesse,
                       score = score)
 

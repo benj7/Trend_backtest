@@ -22,8 +22,6 @@ library(xts)
 library(plotly)
 library(htmlwidgets)
 
-tic()
-
 # SOURCE USEFUL FUNCTIONS ----
 source("R/wrapper_functions.R")
 source("R/highcharter_charts.R")
@@ -32,6 +30,7 @@ source("R/highcharter_charts.R")
 
 assets <- c("sp",
             "cac",
+            
             "atos",
             "adp",
             "axa",
@@ -40,12 +39,13 @@ assets <- c("sp",
             "valneva",
             "apple")
 
-input <- sample(assets, 1)
+asset <- sample(assets, 1)
 
-input <- "lvmh"
-daily <- fread(str_c("input/data/", input, "_daily.csv"))
-weekly <- fread(str_c("input/data/", input, "_weekly.csv"))
-monthly <- fread(str_c("input/data/", input, "_monthly.csv"))
+tic()
+asset <- "apple"
+daily <- fread(str_c("input/data/", asset, "_daily.csv"))
+weekly <- fread(str_c("input/data/", asset, "_weekly.csv"))
+monthly <- fread(str_c("input/data/", asset, "_monthly.csv"))
 
 # CLEAN NAMES ----
 
@@ -362,12 +362,12 @@ res_horizon_n_days <- get_start_end_periods(daily,
                                             horizon = 100,
                                             ndays = ndays)
 
-if(!file.exists(str_c("output/data/", input, "_all_max_perf_n_days_horizon.rds"))){
+if(!file.exists(str_c("output/data/", asset, "_all_max_perf_5_days_horizon.rds"))){
     
     # len <- nrow(res_horizon_n_days)
     # 
     # list_dt<- replicate(n = len,
-    #                     expr = {res_horizon_n_days},
+    #                     expr = {res_horizon_5_days},
     #                     simplify = F)
     plan(multisession, workers =  parallelly::availableCores())
     
@@ -375,12 +375,12 @@ if(!file.exists(str_c("output/data/", input, "_all_max_perf_n_days_horizon.rds")
                                                         res_horizon_n_days$end_date),
                                                    max_perf_horizon)
     
-    all_max_perf_n_days_horizon <- all_max_perf_n_days_horizon[order(-max_perf_5_days)]
+    all_max_perf_n_days_horizon <- all_max_perf_n_days_horizon[order(-get(str_c("max_perf", ndays, "days", sep = "_")))]
     
-    saveRDS(all_max_perf_n_days_horizon, str_c("output/data/", input, "_all_max_perf_n_days_horizon.rds"))
+    saveRDS(all_max_perf_n_days_horizon, str_c("output/data/", asset, "_all_max_perf_5_days_horizon.rds"))
 }
 
-# Reperer les trends mensuels récents 
+# Reperer les trends mensuels récents ----
 
 ndays <- 20
 
@@ -397,32 +397,35 @@ all_max_perf_n_days_horizon <- future_pmap_dfr(list(res_horizon_n_days$start_hor
 
 all_max_perf_n_days_horizon <- all_max_perf_n_days_horizon[order(-get(str_c("max_perf", ndays, "days", sep = "_")))]
 
+saveRDS(all_max_perf_n_days_horizon, str_c("output/data/", asset, "_all_max_perf_20_days_horizon.rds"))
+
 unique_dates <- unique(tail(monthly, nrow(monthly) - 20)$date)
 
 plan(multisession, workers =  parallelly::availableCores())
 
 trend_mensuel_recent <- future_pmap_dfr(list(unique_dates),
-                                        trend_recent_mensuel)
+                                        trend_recent_monthly)
 
 trend_mensuel_recent <- left_join(trend_mensuel_recent,
                                   monthly[, .(date, adj_close, sma20)],
                                   by = c("date_analyse" = "date"))
 
+saveRDS(trend_mensuel_recent, str_c("output/data/", asset, "_trend_mensuel.rds"))
 
 # SAVE MODIFIED DATA ------------------------------------------------------
 
-saveRDS(daily, str_c("output/data/", input, "_daily_modified.rds"))
-saveRDS(weekly, str_c("output/data/", input, "_weekly_modified.rds"))
-saveRDS(monthly, str_c("output/data/", input, "_monthly_modified.rds"))
+saveRDS(daily, str_c("output/data/", asset, "_daily_modified.rds"))
+saveRDS(weekly, str_c("output/data/", asset, "_weekly_modified.rds"))
+saveRDS(monthly, str_c("output/data/", asset, "_monthly_modified.rds"))
 
-print(input)
+print(asset)
 
 # TRENDFOLLOWING & DAILY PLOTS --------------------------------------------
 
 p_trend <- plot_trendfollowing(plot_bollinger = TRUE,
                                plot_ma_ct = TRUE)
 
-htmlwidgets::saveWidget(p_trend, str_c("output/charts/", input, "_trend.html"))
+htmlwidgets::saveWidget(p_trend, str_c("output/charts/", asset, "_trend.html"))
 
 p_daily <- plot_daily(plot_ma_ct = TRUE,
                       plot_ma_lt = TRUE,
@@ -430,6 +433,6 @@ p_daily <- plot_daily(plot_ma_ct = TRUE,
                       plot_frametrend = TRUE,
                       plot_atr = TRUE)
 
-htmlwidgets::saveWidget(p_daily, str_c("output/charts/", input, "_daily.html"))
+htmlwidgets::saveWidget(p_daily, str_c("output/charts/", asset, "_daily.html"))
 
 toc()

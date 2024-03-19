@@ -124,7 +124,7 @@ plot_trendfollowing <- function(plot_bollinger = FALSE,
     
     hc <- hc |> 
         
-        hc_title(text = str_c(toupper(input), "MONTHLY - WEEKLY - DAILY", sep = "<br/>"),
+        hc_title(text = str_c(toupper(asset), "MONTHLY - WEEKLY - DAILY", sep = "<br/>"),
                  margin = 20,
                  align = "left",
                  style = list(color = "#22A884", useHTML = TRUE)) |> 
@@ -257,7 +257,7 @@ plot_daily <- function(plot_bollinger = FALSE,
     
     hc <- hc |> 
         
-        hc_title(text = str_c(toupper(input), "DAILY", sep = "<br/>"),
+        hc_title(text = str_c(toupper(asset), "DAILY", sep = "<br/>"),
                  margin = 20,
                  align = "left",
                  style = list(color = "#22A884", useHTML = TRUE)) |> 
@@ -328,7 +328,7 @@ plot_distance_bol_sup <- function(index = FALSE) {
     
     hc <- hc |> 
         
-        hc_title(text = str_c(toupper(ifelse(index, "CAC", input)), "Distance between Close and Upper bollinger band", sep = "<br/>"),
+        hc_title(text = str_c(toupper(ifelse(index, "CAC", asset)), "Distance between Close and Upper bollinger band", sep = "<br/>"),
                  margin = 20,
                  align = "left",
                  style = list(color = "#22A884", useHTML = TRUE)) |> 
