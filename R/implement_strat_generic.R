@@ -171,3 +171,4 @@ daily_lim <- daily
 
 daily_lim <- left_join(daily_lim, 
                        weekly[, .(date, week)])
+
