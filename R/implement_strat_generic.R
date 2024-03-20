@@ -71,7 +71,7 @@ implement_strategy <- function(data,
     
     res <- res[signal == "entree", prix_entree := adj_close]
     
-    res <- res[signal == "sortie", prix_sortie := pmax(adj_close, sma20)]
+    res <- res[signal == "sortie", prix_sortie := pmax(sma20_monthly, safelinelow)]
 
     res <- res[signal == "sortie", perf := prix_sortie/prev_close- 1]
     
@@ -82,7 +82,7 @@ implement_strategy <- function(data,
     k_final <- k_init * perf_cumul
     
     summary <- data.table(strategie = nom_strat,
-                          actif = input, 
+                          actif = asset, 
                           date_debut_strategie = min(res$date),
                           date_fin_strategie = max(res$date),
                           prix_debut_strategie = res[, first(adj_close)],
@@ -111,7 +111,10 @@ implement_strategy <- function(data,
               , "open"
               , "adj_close"
               , "bol_sup"
+              , "bol_sup_monthly"
               , "sma20"
+              , "sma20_monthly"
+              , "safelinelow"
               , "perf"
               # , "flux_haussier"
               # , "safeline"
@@ -145,13 +148,16 @@ implement_strategy <- function(data,
 # signal_entree <- "ok_relance == 1 & above_safeline == 1 & 
 # (petite_bougie == 1 | petite_bougie_prev == 1 | petite_bougie_ante_prev == 1)"
 
-signal_entree <- "distance_bol_sup > 0"
+signal_entree <- "adj_close > bol_sup_monthly & adj_close > safelinelow"
 
-signal_sortie <- "below_sma20 == 1"
+signal_sortie <- "adj_close < sma20_monthly | below_safelinelow == 1"
 
 # signal_sortie <- "distance_bol_sup < -5"
+asset <- "atos"
+daily <- readRDS(str_c("output/data/", asset, "_monthly_modified.rds"))
 
-implement_strategy(monthly, 
+
+implement_strategy(daily[last_day_month == 1], 
                    signal_entree = signal_entree,
                    signal_sortie = signal_sortie)
 

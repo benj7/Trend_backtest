@@ -42,7 +42,7 @@ assets <- c("sp",
 asset <- sample(assets, 1)
 
 tic()
-asset <- "apple"
+asset <- "atos"
 daily <- fread(str_c("input/data/", asset, "_daily.csv"))
 weekly <- fread(str_c("input/data/", asset, "_weekly.csv"))
 monthly <- fread(str_c("input/data/", asset, "_monthly.csv"))
@@ -349,6 +349,45 @@ daily <- left_join(daily,
                    by = "month_year")
 
 setnames(monthly, old = "below_keltner_dn_monthly", new = "below_keltner_dn")
+
+# Ajout des SMA20 weekly 
+setnames(weekly, old = "sma20", new = "sma20_weekly")
+
+daily <- left_join(daily, 
+                   weekly[, .(week_year, sma20_weekly)],
+                   by = "week_year")
+
+setnames(weekly, old = "sma20_weekly", new = "sma20")
+
+# Ajout des SMA20 monthly 
+setnames(monthly, old = "sma20", new = "sma20_monthly")
+
+daily <- left_join(daily, 
+                   monthly[, .(month_year, sma20_monthly)],
+                   by = "month_year")
+
+setnames(monthly, old = "sma20_monthly", new = "sma20")
+
+# Ajout distances bol sup weekly 
+
+setnames(weekly, old = "distance_bol_sup", new = "distance_bol_sup_weekly")
+
+daily <- left_join(daily, 
+                   weekly[, .(week_year, distance_bol_sup_weekly)],
+                   by = "week_year")
+
+setnames(monthly, old = "distance_bol_sup_weekly", new = "distance_bol_sup")
+
+# et monthly 
+setnames(monthly, old = "distance_bol_sup", new = "distance_bol_sup_monthly")
+
+daily <- left_join(daily, 
+                   monthly[, .(month_year, distance_bol_sup_monthly)],
+                   by = "month_year")
+
+setnames(monthly, old = "distance_bol_sup_monthly", new = "distance_bol_sup")
+
+# Filtres stratégies Amsterdam 
 
 daily <- ok_amsterdam(daily)
 
