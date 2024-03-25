@@ -1,10 +1,10 @@
-implement_strategy <- function(data,
-                               date_debut_strat = NULL,
-                               date_fin_strat = NULL,
-                               signal_entree, 
-                               signal_sortie,
-                               k_init = 1000,
-                               nom_strat = "strategie"){
+implement_strategy_trend_mensuel <- function(data,
+                                             date_debut_strat = NULL,
+                                             date_fin_strat = NULL,
+                                             signal_entree, 
+                                             signal_sortie,
+                                             k_init = 1000,
+                                             nom_strat = "strategie"){
     
     dt <- copy(data)
     
@@ -66,13 +66,13 @@ implement_strategy <- function(data,
         
         res <- head(res, -1)
     } 
-
+    
     res <- res[, prev_close := data.table::shift(adj_close, n = 1)]
     
     res <- res[signal == "entree", prix_entree := adj_close]
     
-    res <- res[signal == "sortie", prix_sortie := pmax(sma20_monthly, safelinelow)]
-
+    res <- res[signal == "sortie", prix_sortie := sma20]
+    
     res <- res[signal == "sortie", perf := prix_sortie/prev_close- 1]
     
     vector_perf <- 1+res[!is.na(perf), perf]
@@ -104,94 +104,29 @@ implement_strategy <- function(data,
                                                                                          mean_perf_pct)]
     
     cols <- c("date"
+              , "vitesse"
+              , "score"
               , "signal"
               , "prix_entree"
               , "prix_sortie"
-              , "low"
-              , "open"
               , "adj_close"
-              , "bol_sup"
-              , "bol_sup_monthly"
               , "sma20"
-              , "sma20_monthly"
-              , "safeline"
-              , "safelinelow"
-              , "perf"
-              # , "flux_haussier"
-              # , "safeline"
-              # , "safelinelow"
-              # , "sma50"
-              # , "sma50_minus_atr_20"
-              # , "above_safeline"
-              # , "below_safelinelow"
-              # , "taille_bougie"
-              # , "mavg_taille_bougie"
-              # , "median_taille_bougie"
-              # , "petite_bougie"
-              # , "petite_bougie_prev"
-              # , "petite_bougie_ante_prev"
-              # , "prev_close"
-              # , "noeud_mm_ct"
-              # , "wma4"
-              # , "wma4_up"
-              # , "sma200"
-              # , "above_sma200"
-              # , "sma200_up"
-              )
+              , "perf")
     
     
-    return(list(res[, .SD, .SDcols = cols],
-                vector_perf,
-                summary))
+    return(list(res[, .SD, .SDcols = cols]
+                # , vector_perf
+                # , summary
+                )
+           )
     
 }
-
-
-# signal_entree <- "ok_relance == 1 & above_safeline == 1 & 
-# (petite_bougie == 1 | petite_bougie_prev == 1 | petite_bougie_ante_prev == 1)"
-
-signal_entree <- "distance_bol_sup_monthly >= -0.5 & adj_close > sma20_weekly & adj_close > sma20 & adj_close > safelinelow"
-
-signal_sortie <- "adj_close < sma20_monthly | below_safelinelow == 1"
-
-
-
-# signal_sortie <- "distance_bol_sup < -5"
-asset <- "axa"
-daily <- readRDS(str_c("output/data/", asset, "_daily_modified.rds"))
-
-
-implement_strategy(daily[last_day_month == 1], 
-                   signal_entree = signal_entree,
-                   signal_sortie = signal_sortie)
 
 signal_entree <- "score > 5000"
 signal_sortie <- "below_sma20 == 1"
 
-implement_strategy(axa_trend_mensuel, 
-                   signal_entree = signal_entree,
-                   signal_sortie = signal_sortie)
+setnames(axa_trend_mensuel, old = "date_analyse", new = "date")
 
-res_strategy <- implement_strategy(daily, 
-                                   signal_entree = signal_entree,
-                                   signal_sortie = signal_sortie,
-                                   nom_strat = "relance_puissance_sortie_safeline")[[1]]
-
-tmp <- res_strategy[date == ymd("2020-11-09")]
-
-any(duplicated(res_strategy$date))
-
-
-all_max_perf_n_days_horizon <- pmap_dfr(list(res_horizon_n_days$start_horizon,
-                                             res_horizon_n_days$end_date),
-                                        max_perf_horizon)
-
-all_max_perf_n_days_horizon <- all_max_perf_n_days_horizon[order(-max_perf_5_days)]
-
-sdcols <- c("date", "")
-daily_lim <- daily
-
-daily_lim <- left_join(daily_lim, 
-                       weekly[, .(date, week)])
-
-
+implement_strategy_trend_mensuel(axa_trend_mensuel, 
+                                 signal_entree = signal_entree,
+                                 signal_sortie = signal_sortie)
