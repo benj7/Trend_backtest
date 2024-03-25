@@ -1208,6 +1208,7 @@ trend_recent_monthly <- function(date_analyse,
                                            round(max(get(str_c("max_perf", ndays, "days", sep = "_"))), 2) * 100]
 
     score <- ifelse(between(nb_months, 1, 5), max(0, 6 - nb_months) * 1000 + vitesse, 0)
+    
 
     res <- data.table(asset = asset,
                       date_analyse = date_analyse,

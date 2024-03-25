@@ -42,7 +42,7 @@ assets <- c("sp",
 asset <- sample(assets, 1)
 
 tic()
-asset <- "atos"
+asset <- "axa"
 daily <- fread(str_c("input/data/", asset, "_daily.csv"))
 weekly <- fread(str_c("input/data/", asset, "_weekly.csv"))
 monthly <- fread(str_c("input/data/", asset, "_monthly.csv"))
@@ -376,7 +376,7 @@ daily <- left_join(daily,
                    weekly[, .(week_year, distance_bol_sup_weekly)],
                    by = "week_year")
 
-setnames(monthly, old = "distance_bol_sup_weekly", new = "distance_bol_sup")
+setnames(weekly, old = "distance_bol_sup_weekly", new = "distance_bol_sup")
 
 # et monthly 
 setnames(monthly, old = "distance_bol_sup", new = "distance_bol_sup_monthly")

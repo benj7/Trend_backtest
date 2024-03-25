@@ -114,6 +114,7 @@ implement_strategy <- function(data,
               , "bol_sup_monthly"
               , "sma20"
               , "sma20_monthly"
+              , "safeline"
               , "safelinelow"
               , "perf"
               # , "flux_haussier"
@@ -148,23 +149,31 @@ implement_strategy <- function(data,
 # signal_entree <- "ok_relance == 1 & above_safeline == 1 & 
 # (petite_bougie == 1 | petite_bougie_prev == 1 | petite_bougie_ante_prev == 1)"
 
-signal_entree <- "adj_close > bol_sup_monthly & adj_close > safelinelow"
+signal_entree <- "distance_bol_sup_monthly >= -0.5 & adj_close > sma20_weekly & adj_close > sma20 & adj_close > safelinelow"
 
 signal_sortie <- "adj_close < sma20_monthly | below_safelinelow == 1"
 
+signal_entree <- "above_safeline == 1"
+signal_sortie <- "below_safelinelow == 1"
+
 # signal_sortie <- "distance_bol_sup < -5"
-asset <- "atos"
-daily <- readRDS(str_c("output/data/", asset, "_monthly_modified.rds"))
+asset <- "axa"
+daily <- readRDS(str_c("output/data/", asset, "_daily_modified.rds"))
 
 
 implement_strategy(daily[last_day_month == 1], 
                    signal_entree = signal_entree,
                    signal_sortie = signal_sortie)
 
-res_strategy <- implement_strategy(cac_monthly, 
+res_strategy <- implement_strategy(daily, 
                                    signal_entree = signal_entree,
                                    signal_sortie = signal_sortie,
                                    nom_strat = "relance_puissance_sortie_safeline")[[1]]
+
+tmp <- res_strategy[date == ymd("2020-11-09")]
+
+any(duplicated(res_strategy$date))
+
 
 all_max_perf_n_days_horizon <- pmap_dfr(list(res_horizon_n_days$start_horizon,
                                              res_horizon_n_days$end_date),
