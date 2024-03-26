@@ -72,19 +72,16 @@ daily <- order_date(daily)
 weekly <- order_date(weekly)
 monthly <- order_date(monthly)
 
-# Perf quotidienne 
-
+# Daily performance
 daily <- daily_perf(daily)
 
-# Fetch the last day of each month 
-
-daily <- last_day(daily)
-
 # Add key joins 
-
 daily <- create_key_joins(daily)
 weekly <- create_key_joins(weekly)
 monthly <- create_key_joins(monthly)
+
+# Fetch the last day of each month/week
+daily <- last_day(daily)
 
 # Add Bollinger Bands - 0.75* std(20)
 

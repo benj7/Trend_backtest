@@ -31,16 +31,15 @@ last_day <- function(data){
 
     dt <- copy(data)
 
-    max_dates <- dt[, .(max_date = max(date)), by = .(month(date), year(date))][, max_date]
+    max_dates <- dt[, .(max_date = max(date)), by = month_year][, max_date]
 
     dt <- dt[date %in% max_dates, last_day_month := 1]
 
-    max_dates <- dt[, .(max_date = max(date)), by = .(week(date), year(date))][, max_date]
+    max_dates <- dt[, .(max_date = max(date)), by = week_year][, max_date]
 
     dt <- dt[date %in% max_dates, last_day_week := 1]
 
     return(dt)
-
 
 }
 
